@@ -1,0 +1,39 @@
+{
+  "name": "lunar-landing-site-navigator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx src/lib/selftest.ts",
+    "verify:lola": "tsx src/lib/verify-lola.ts",
+    "bake:lola": "tsx scripts/bake-lola.ts",
+    "bake:map": "tsx scripts/bake-pole-map.ts",
+    "bake:global": "tsx scripts/bake-global.ts",
+    "find:rims": "tsx scripts/find-rims.ts",
+    "benchmark": "tsx scripts/benchmark.ts",
+    "refine:presets": "tsx scripts/refine-presets.ts",
+    "start": "vite preview --host 0.0.0.0 --port ${PORT:-4173} --strictPort"
+  },
+  "dependencies": {
+    "geotiff": "^3.0.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.170.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
