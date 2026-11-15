@@ -22,7 +22,7 @@ export const PRESETS: Site[] = [
 /**
  * Named past and planned landing sites. Coordinates: Apollo = NASA NSSDC table (LRO-based, Wagner et al. 2017, Lunar Module position);
  * Chandrayaan-3 = ISRO/NSSDC; IM-1 = Intuitive Machines/NSSDC; IM-2 = reported landing point (~250 m from target); Chang'e-4/-6 = CNSA via Wikipedia.
- * Terrain is real NASA LOLA everywhere: the 20 m polar product at 81-90 S, the global 237 m map elsewhere (baked for these sites).
+ * Terrain is real NASA LOLA everywhere: the 20 m polar product at 81-90 S, the global 118 m map elsewhere (baked for these sites).
  */
 export interface Mission extends Site { agency: string; year: string }
 export const MISSIONS: Mission[] = [

@@ -7,7 +7,7 @@ import { NASA_BASELINE_M, radiusFor, slopeStats } from './slope';
 
 export interface Analysis { site: Site; start: number; days: number; samples: Sample[]; source: Source; flags: Flags; verdict: Verdict; terrain: Terrain['kind']; slopeUnder10: number | null }
 
-/** Real LOLA terrain for any lunar site (20 m at the south pole, 237 m elsewhere); the labelled stand-in only if the NASA read fails. */
+/** Real LOLA terrain for any lunar site (20 m at the south pole, 118 m elsewhere); the labelled stand-in only if the NASA read fails. */
 export async function terrainFor(site: Site): Promise<Terrain> {
   try { return await loadLolaTerrain(site); } catch { /* fall back */ }
   return proceduralTerrain(site.lat, site.lon);

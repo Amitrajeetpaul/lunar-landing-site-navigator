@@ -224,7 +224,7 @@ export function App() {
                   <label className="inl">Lat °<input value={latS} onChange={(e) => applyCoords(e.target.value, lonS)} /></label>
                   <label className="inl">Lon °E<input value={lonS} onChange={(e) => applyCoords(latS, e.target.value)} /></label>
                 </div>
-                <small className="muted">Any lunar site uses real NASA LOLA terrain (20 m at 81–90°S, 237 m elsewhere), read live: about a minute the first time.</small>
+                <small className="muted">Any lunar site uses real NASA LOLA terrain (20 m at 81–90°S, 118 m elsewhere), read live: about a minute the first time.</small>
               </div>
               <div className="card">
                 <div className="card-h"><span className="ico"><IconMountain /></span><b>Antenna height</b></div>
@@ -234,9 +234,9 @@ export function App() {
                 <div className="card-h"><span className="ico"><IconPin /></span><b>Past and planned landings</b></div>
                 <select value="" onChange={(e) => { const m = MISSIONS[+e.target.value]; if (m) choose(m); }} aria-label="Choose a mission landing site">
                   <option value="">Choose a landing site…</option>
-                  {MISSIONS.map((m, i) => <option key={m.name} value={i}>{m.name} · {m.year}{m.lat <= -81 ? ' · real LOLA 20 m' : ' · real LOLA 237 m'}</option>)}
+                  {MISSIONS.map((m, i) => <option key={m.name} value={i}>{m.name} · {m.year}{m.lat <= -81 ? ' · real LOLA 20 m' : ' · real LOLA 118 m'}</option>)}
                 </select>
-                <small className="muted">Apollo, CLPS, Chang’e and Chandrayaan sites. Terrain is real NASA LOLA everywhere: 20 m at 81–90°S, 237 m elsewhere (baked for these sites, so they open instantly). Coordinates from NASA NSSDC and mission reports.</small>
+                <small className="muted">Apollo, CLPS, Chang’e and Chandrayaan sites. Terrain is real NASA LOLA everywhere: 20 m at 81–90°S, 118 m elsewhere (baked for these sites, so they open instantly). Coordinates from NASA NSSDC and mission reports.</small>
               </div>
             </section>
 

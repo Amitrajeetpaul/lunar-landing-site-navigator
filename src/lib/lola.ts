@@ -54,7 +54,7 @@ async function retry<T>(fn: () => Promise<T>, tries = 3): Promise<T> {
   throw err;
 }
 
-// The 20 m polar product covers 80-90 S (keep the +-50 km coarse layer inside it). Everywhere else uses the global 237 m map.
+// The 20 m polar product covers 80-90 S (keep the +-50 km coarse layer inside it). Everywhere else uses the global 118 m map.
 export const lolaCovers = (lat: number) => lat <= -81.0;
 export const lolaGlobalOnly = (lat: number) => !lolaCovers(lat);
 
