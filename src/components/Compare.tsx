@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { analyze, fmtDur, fromInput, toInput, type Analysis } from '../lib/analysis';
-import { PRESETS, type Site } from '../lib/sites';
+import { MISSIONS, PRESETS, type Site } from '../lib/sites';
 import type { Rule } from '../lib/visibility';
 import { WindowFinder } from './WindowFinder';
 import { moonDistanceKm } from '../lib/dark';
@@ -50,6 +50,7 @@ export function Compare({ start, days, mast, useHorizons, rule, current, relay, 
         <p className="muted">Each card is one site and start date, scored over the same {days}-day window. Best = highest mission score (Sun, Sun + Earth, short outages, gentle ground; weights set on the Verdict screen).{relay ? ' A relay is assumed for Earth contact.' : ''} Each site uses real NASA LOLA terrain where it loads (cards say which).</p>
         <div className="row">
           <button onClick={() => setScns(PRESETS.map((s) => ({ id: nextId++, site: s, start })))}>All presets, same date</button>
+          <button onClick={() => setScns([...PRESETS, ...MISSIONS].map((s) => ({ id: nextId++, site: s, start })))}>All {PRESETS.length + MISSIONS.length} sites, same date</button>
           <button onClick={() => setScns([0, 15, 30, 45].map((d) => ({ id: nextId++, site: current, start: start + d * DAY })))}>Current site, 4 start dates</button>
           <span className="spacer" />
           <select aria-label="Preset site to add" value={pick} onChange={(e) => setPick(+e.target.value)}>{PRESETS.map((s, i) => <option key={s.name} value={i}>{s.name}</option>)}</select>
@@ -57,6 +58,9 @@ export function Compare({ start, days, mast, useHorizons, rule, current, relay, 
           <button onClick={() => setScns([...scns, { id: nextId++, site: current, start }])}>Add current site</button>
         </div>
         {busy && <p className="muted">Fetching ephemeris and LOLA terrain…</p>}
+        {!busy && done.length >= 3 && (
+          <p className="muted">Best at this date, by mission score: {rank.slice(0, 5).map((q, i) => `${i + 1}. ${q.site.name} (${sc(q.id).toFixed(0)})`).join(' · ')}. Scores use Sun, Earth, outages and slope only: a planning aid, not landing clearance.</p>
+        )}
         {!busy && done.length > 0 && (() => {
           const safe = done.filter((q) => res[q.id].verdict.sunOutageD === 0);
           return (
