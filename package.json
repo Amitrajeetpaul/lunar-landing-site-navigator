@@ -15,7 +15,7 @@
     "bake:global": "tsx scripts/bake-global.ts",
     "longterm": "tsx scripts/longterm.ts",
     "validate:nasa": "tsx scripts/validate-nasa-illumination.ts",
-    "test:ai": "tsx scripts/test-ai.ts",
+    "test:ai": "tsx scripts/test-ai.ts && tsx scripts/test-ai-api.ts",
     "check:trek": "tsx scripts/crosscheck-trek.ts",
     "find:rims": "tsx scripts/find-rims.ts",
     "benchmark": "tsx scripts/benchmark.ts",

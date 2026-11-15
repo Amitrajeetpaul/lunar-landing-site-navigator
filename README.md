@@ -146,13 +146,13 @@ An early version clamped the horizon with the 2 m mast height instead of the sit
 - **LOLA 20 m is partly interpolated** (only part of the pixels contain a measured spot), so close-in horizons at low antenna heights are the least certain part.
 - **The live verdict uses 15–60 day windows**, which cannot reproduce multi-year published percentages by themselves. The full 18.6-year result is precomputed only for the 8 candidate and 11 landing sites; a custom site does not get one (use the best start-date finder instead).
 - **Relay mode is a simple assumption** (Earth contact always available), not a relay orbit model.
-- **The optional AI brief is live-tested only with Groq, not Claude.** It sends just the verdict numbers and the site name to the provider you configure (Claude via `ANTHROPIC_API_KEY`, or Groq via `GROQ_API_KEY`), rejects any reply containing a number that is not in the verdict, and falls back to the rule-based text. In live tests with Groq (`openai/gpt-oss-120b`, about 1.6 s per reply) the guard accepted 5 of 5 replies and the writing was correct; the smaller `gpt-oss-20b` accepted 10 of 10 after the guard fixes below but misread meanings in a few replies (for example blaming the wrong source for an outage). The guard checks numbers, not meaning, so the app says the wording is the AI's. It is off on the hosted site (no key), and Groq's free tier rate-limited a burst of about ten quick calls (the app shows the error and keeps the rule-based text).
+- **The optional AI brief is live-tested only with Groq, not Claude.** It sends just the verdict numbers and the site name to the provider you configure (Claude via `ANTHROPIC_API_KEY`, or Groq via `GROQ_API_KEY`), rejects any reply containing a number that is not in the verdict, and falls back to the rule-based text. In live tests with Groq (`openai/gpt-oss-120b`, about 1.6 s per reply) the guard accepted 5 of 5 replies and the writing was correct; the smaller `gpt-oss-20b` accepted 10 of 10 after the guard fixes below but misread meanings in a few replies (for example blaming the wrong source for an outage). The guard checks numbers, not meaning, so the app says the wording is the AI's. On the hosted site it runs as a Vercel Edge Function (`api/explain.ts`) with the protections listed under Deploy, and stays off (the button says so) until the owner adds a key. Groq's free tier rate-limited a burst of about ten quick calls (the app shows the error and keeps the rule-based text).
 - Landing-site coordinates come from the NASA NSSDC Apollo table and public mission reports; verify before any real use.
 
 ## Testing and usability
 
 - **Calculation:** checked against NASA's own illumination maps, published studies, an independent SPICE run and NASA Moon Trek (see Validation).
-- **Optional AI brief:** `npm run test:ai` runs 22 tests with no network and no API key: the number guard (faithful text, invented numbers, rounding, trailing zeros, thousands separators, site names containing digits or typographic hyphens and non-breaking spaces, thresholds named in the fields) and every response shape the client must survive (good reply, 429, no key, malformed, empty, network failure) against a mock server. A live call has been run against Groq only (see Limits): the first live run exposed two guard bugs (a legitimate "under 10°" threshold and typographic dashes in site names were rejected; only 2 of 10 replies were accepted), both now fixed and covered by tests. A live Claude call has not been run.
+- **Optional AI brief:** `npm run test:ai` runs 50 tests with no network and no API key (22 for the client and number guard, 28 for the server function): the number guard (faithful text, invented numbers, rounding, trailing zeros, thousands separators, site names containing digits or typographic hyphens and non-breaking spaces, thresholds named in the fields) and every response shape the client must survive (good reply, 429, no key, malformed, empty, network failure) against a mock server. The server tests cover input validation (injection-style site names, out-of-range and wrong-type numbers), the same-site check, the per-visitor and whole-site daily limits, and that the API key never appears in any response even when a provider error contains it. A live call has been run against Groq only (see Limits): the first live run exposed two guard bugs (a legitimate "under 10°" threshold and typographic dashes in site names were rejected; only 2 of 10 replies were accepted), both now fixed and covered by tests. A live Claude call has not been run.
 - **Usability:** no real-user test has been run yet. [`docs/USABILITY.md`](docs/USABILITY.md) is a ready one-hour protocol with six tasks, the SUS questionnaire and a heuristic self-review.
 
 ## Run it locally
@@ -192,7 +192,7 @@ GROQ_API_KEY=your-key npm run dev        # or Groq (default model openai/gpt-oss
 | `npm run validate:nasa` | Compares them with NASA's own Sun and Earth illumination maps |
 | `npm run check:trek` | Compares our terrain height at each site with NASA Moon Trek's LOLA service |
 | `npm run bake:illum` | Re-bakes NASA's 18.6-year illumination map for the pole-map overlay |
-| `npm run test:ai` | 22 offline tests of the optional AI brief against a mock server (no key needed) |
+| `npm run test:ai` | 50 offline tests of the optional AI brief and its server side (no key needed) |
 | `npm run refine:presets` / `npm run find:rims` | The scans used to choose the candidate sites |
 | `scripts/spice_check.py` | Independent NAIF SPICE cross-check (set-up steps are in its header) |
 
@@ -202,6 +202,17 @@ The app is a static build plus a small proxy to NASA's servers.
 
 - **Any Node host:** `npm run build && npm start` (Vite's preview server carries the proxies in `vite.config.ts`).
 - **Vercel** (what the live site uses): `vercel.json` rewrites `/horizons`, `/pgda` and `/imbrium` to `api/nasa.ts`, an Edge Function that forwards the HTTP `Range` header to a fixed list of NASA files and streams the answer back. Partial responses are marked uncacheable so a CDN cannot hand one byte range to a request for another.
+
+### Enabling the AI brief on the hosted site
+
+`api/explain.ts` is an Edge Function behind `POST /ai/explain` (the same code as the local dev proxy, `src/lib/aiServer.ts`). It accepts same-site requests only, validates the body against a strict allow-list (numeric ranges, a plain-text site name, no extra fields), caps the request and the output, and limits use to **10 requests per visitor and 300 per day for the whole site** (change with `AI_LIMIT_PER_IP` and `AI_LIMIT_PER_DAY`). The limits live in memory, so they are approximate across serverless instances; for a hard guarantee use a provider key with a spend cap or no payment method. The key is never in the repository or the browser. To turn it on, add it yourself in your own terminal and redeploy:
+
+```bash
+vercel env add GROQ_API_KEY production    # paste the key when prompted (or ANTHROPIC_API_KEY)
+vercel deploy --prod
+```
+
+Optional: `GROQ_MODEL` (default `openai/gpt-oss-120b`), `AI_PROVIDER=anthropic|groq`.
 
 ## Project layout
 
