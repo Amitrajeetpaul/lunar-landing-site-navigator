@@ -1,0 +1,235 @@
+{
+ "source": "NASA LOLA Lunar Polar Illumination (PGDA product 69, PDS AVGVISIB), 18.6-year averages",
+ "rows": [
+  {
+   "name": "Shackleton ridge (LOLA-refined)",
+   "lat": -89.689,
+   "map": "85S_060M",
+   "nasaSun": 80.1,
+   "nasaSunRange": [
+    44.6,
+    84.4
+   ],
+   "oursSun": [
+    77.5,
+    88.5
+   ],
+   "nasaEarth": 53.4,
+   "nasaEarthRange": [
+    46.3,
+    53.6
+   ],
+   "oursEarth": [
+    44.6,
+    53.8
+   ]
+  },
+  {
+   "name": "Peak near Shackleton D (LOLA-refined)",
+   "lat": -88.81,
+   "map": "85S_060M",
+   "nasaSun": 56.6,
+   "nasaSunRange": [
+    17,
+    86
+   ],
+   "oursSun": [
+    71.8,
+    82.7
+   ],
+   "nasaEarth": 54.1,
+   "nasaEarthRange": [
+    44.2,
+    56.5
+   ],
+   "oursEarth": [
+    49,
+    58.1
+   ]
+  },
+  {
+   "name": "de Gerlache ridge C (LOLA-refined)",
+   "lat": -88.705,
+   "map": "85S_060M",
+   "nasaSun": 55,
+   "nasaSunRange": [
+    46,
+    77.3
+   ],
+   "oursSun": [
+    69.8,
+    80.6
+   ],
+   "nasaEarth": 53.2,
+   "nasaEarthRange": [
+    47.6,
+    61.2
+   ],
+   "oursEarth": [
+    51.4,
+    60.7
+   ]
+  },
+  {
+   "name": "Malapert Massif (LOLA-refined)",
+   "lat": -85.975,
+   "map": "85S_060M",
+   "nasaSun": 55.3,
+   "nasaSunRange": [
+    44.4,
+    55.6
+   ],
+   "oursSun": [
+    55.2,
+    58.9
+   ],
+   "nasaEarth": 98.4,
+   "nasaEarthRange": [
+    72.3,
+    98.4
+   ],
+   "oursEarth": [
+    81.5,
+    100
+   ]
+  },
+  {
+   "name": "Haworth rim (LOLA-refined)",
+   "lat": -86.993,
+   "map": "85S_060M",
+   "nasaSun": 41.5,
+   "nasaSunRange": [
+    41.5,
+    60.9
+   ],
+   "oursSun": [
+    57.5,
+    68.3
+   ],
+   "nasaEarth": 54.6,
+   "nasaEarthRange": [
+    54.6,
+    60.3
+   ],
+   "oursEarth": [
+    49.7,
+    58.9
+   ]
+  },
+  {
+   "name": "Faustini rim (LOLA-refined)",
+   "lat": -86.299,
+   "map": "85S_060M",
+   "nasaSun": 52.2,
+   "nasaSunRange": [
+    46.1,
+    53.9
+   ],
+   "oursSun": [
+    49.3,
+    54.2
+   ],
+   "nasaEarth": 50.4,
+   "nasaEarthRange": [
+    50.4,
+    50.4
+   ],
+   "oursEarth": [
+    41.2,
+    50.4
+   ]
+  },
+  {
+   "name": "Nobile rim (LOLA-refined)",
+   "lat": -85.405,
+   "map": "85S_060M",
+   "nasaSun": 64,
+   "nasaSunRange": [
+    48.6,
+    64
+   ],
+   "oursSun": [
+    58.6,
+    64
+   ],
+   "nasaEarth": 85.3,
+   "nasaEarthRange": [
+    59,
+    100
+   ],
+   "oursEarth": [
+    79.6,
+    100
+   ]
+  },
+  {
+   "name": "Shackleton crater wall (shadowed demo)",
+   "lat": -89.9,
+   "map": "85S_060M",
+   "nasaSun": 0,
+   "nasaSunRange": [
+    0,
+    0
+   ],
+   "oursSun": [
+    0,
+    0
+   ],
+   "nasaEarth": 0,
+   "nasaEarthRange": [
+    0,
+    0
+   ],
+   "oursEarth": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "IM-1 Odysseus (near Malapert A, CLPS)",
+   "lat": -80.13,
+   "map": "75S_120M",
+   "nasaSun": 35.6,
+   "nasaSunRange": [
+    34.2,
+    40.3
+   ],
+   "oursSun": [
+    34.3,
+    35.5
+   ],
+   "nasaEarth": 100,
+   "nasaEarthRange": [
+    100,
+    100
+   ],
+   "oursEarth": [
+    100,
+    100
+   ]
+  },
+  {
+   "name": "IM-2 Athena (near Mons Mouton, CLPS)",
+   "lat": -84.7906,
+   "map": "75S_120M",
+   "nasaSun": 46.8,
+   "nasaSunRange": [
+    42.6,
+    47
+   ],
+   "oursSun": [
+    43.6,
+    46.8
+   ],
+   "nasaEarth": 93.1,
+   "nasaEarthRange": [
+    79.4,
+    93.4
+   ],
+   "oursEarth": [
+    74,
+    93.4
+   ]
+  }
+ ]
+}

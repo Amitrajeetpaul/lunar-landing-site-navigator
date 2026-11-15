@@ -3,6 +3,7 @@ import { Compare } from './components/Compare';
 import { Learn } from './components/Learn';
 import { PoleMap } from './components/PoleMap';
 import { PowerCard } from './components/PowerCard';
+import { LongTermCard } from './components/LongTermCard';
 import { SlopeCard } from './components/SlopeCard';
 import { ScoreCard } from './components/ScoreCard';
 import { ShareCard } from './components/ShareCard';
@@ -304,6 +305,7 @@ export function App() {
 
             <section className={'blk' + (['verdict'].includes(pane) ? '' : ' off')} data-pane="verdict" style={{ '--o': 3 } as CSSProperties}>
               <PowerCard now={now.s} samples={samples} sunFlag={flags.sun} sunVisible={now.sunVis} days={days} />
+              <LongTermCard site={site} />
             </section>
 
             <section className={'blk' + (['verdict'].includes(pane) ? '' : ' off')} data-pane="verdict" style={{ '--o': 4 } as CSSProperties}>

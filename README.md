@@ -25,7 +25,7 @@ The app is organised in tabs, one task per screen (desktop and phone):
 | Tab | What you get |
 |---|---|
 | **Site** | 8 candidate south-pole sites, 11 Apollo / CLPS / Chang'e / Chandrayaan landing sites, custom latitude and longitude, antenna height, a 3D terrain view (orbit and "from the lander"), time controls with animation, and a south-pole map built from real LOLA data. |
-| **Verdict** | Sun and Earth now (with a countdown to sunset and Earthset), longest outage, a solar elevation and power card for three panel types, an adjustable **mission score**, a relay-satellite switch, a plain-language brief (optional AI rewrite), a shareable link and a one-page PDF report. |
+| **Verdict** | Sun and Earth now (with a countdown to sunset and Earthset), longest outage, a solar elevation and power card for three panel types, an adjustable **mission score**, a relay-satellite switch, a plain-language brief (optional AI rewrite), **18.6-year long-term statistics** with NASA's own map shown beside them, a shareable link and a one-page PDF report. |
 | **Horizon** | The terrain skyline in every direction with the Sun and Earth paths over it, the terrain data source, and a slope map from the LOLA grid. |
 | **Timeline** | Hour-by-hour Sun and Earth visibility over 15, 30 or 60 days, with percentages and longest gaps. |
 | **Compare** | A **best start-date finder** (scores every start date over 120 days from one Horizons request) and side-by-side scenarios for different sites or dates. |
@@ -76,10 +76,36 @@ Numbers below come from this repository's own scripts (`npm run benchmark`, `scr
 | Check | This app | Reference |
 |---|---|---|
 | Shackleton connecting-ridge Sun, 2028, 2 m mast | 79–89% (whole disc → any part) | Published 81–92% |
-| Longest dark spell at that ridge | 3.1 days | Published 3–5 days |
+| Longest dark spell at that ridge | 3.1 days in 2028; 2.8 days over the full 18.6-year cycle | Published 3–5 days |
+| Shackleton ridge Sun, full 18.6-year cycle, 2 m | 78–89% (whole disc → any part) | Published 81–92% |
 | Mast 2 m → 10 m | +1 to +4 points | Published +3.4 points (Gläser et al.) |
 | NAIF SPICE vs live Horizons (3 sites, 30 days, 3 h) | agree to about 0.00003° | Same JPL data, so this validates our geometry and frame set-up, not the ephemeris itself |
 | Fallback model vs SPICE | Sun elevation ≤ 0.06°, Earth elevation 0.5° rms (0.9° max) | |
+
+### Full-cycle statistics, checked against NASA's own maps
+
+The live verdict covers 15 to 60 days, but published studies average over a full lunar nodal cycle (about 18.6 years). So for the 8 candidate sites and the 11 landing sites the app ships a precomputed **18.6-year result** (2026-01-01 to 2044-09-01, 3-hour steps, one Horizons request per body and site, real LOLA skyline, 2 m and 10 m masts). It is built by `npm run longterm` and shown on the Verdict tab. Sanity checks that fall out of it: near-side sites get Earth 100% of the time, far-side sites (Chang'e-4, Chang'e-6) get 0%, equatorial sites get about 50% Sun, and the shadowed crater wall gets none.
+
+To check it independently, `npm run validate:nasa` compares it with NASA's own **Lunar Polar Illumination** maps (PGDA product 69, PDS `AVGVISIB_*`): 18.6-year averages with one-hour steps, in which a body counts as visible if any part of its disc is, the same as this app's "any part" rule. The table gives NASA's value across the pixels within ±1 (±60 m for the 85–90°S map, ±120 m for the 75°S map) and ours as whole disc → any part, for a 2 m mast:
+
+| Site | NASA Sun (±1 pixel) | This app Sun | NASA Earth (±1 pixel) | This app Earth |
+|---|---|---|---|---|
+| Shackleton ridge | 45–84% (centre 80%) | 78–88% | 46–54% (centre 53%) | 45–54% |
+| Peak near Shackleton D | 17–86% (centre 57%) | 72–83% | 44–56% (centre 54%) | 49–58% |
+| de Gerlache ridge C | 46–77% (centre 55%) | 70–81% | 48–61% (centre 53%) | 51–61% |
+| Malapert Massif | 44–56% (centre 55%) | 55–59% | 72–98% (centre 98%) | 82–100% |
+| Haworth rim | 42–61% (centre 42%) | 58–68% | 55–60% (centre 55%) | 50–59% |
+| Faustini rim | 46–54% (centre 52%) | 49–54% | 50% (centre 50%) | 41–50% |
+| Nobile rim | 49–64% (centre 64%) | 59–64% | 59–100% (centre 85%) | 80–100% |
+| Shackleton crater wall | 0% (centre 0%) | 0% | 0% (centre 0%) | 0% |
+| IM-1 Odysseus | 34–40% (centre 36%) | 34–36% | 100% (centre 100%) | 100% |
+| IM-2 Athena | 43–47% (centre 47%) | 44–47% | 79–93% (centre 93%) | 74–93% |
+
+What this shows, stated carefully:
+- **Earth agrees closely**: mean difference 3.3 points at NASA's centre pixel across the 10 sites, and our range overlaps NASA's nearby-pixel range at every site.
+- **Sun agrees at 7 of 10 sites at the centre pixel.** At three sharp-crest sites (Peak near Shackleton D, de Gerlache ridge C, Haworth rim) NASA's centre pixel is 15 to 16 points lower than ours, but NASA's own map swings by up to 70 points within 60 m there (Peak near Shackleton D runs 17–86%), so the comparison is dominated by location precision. The candidate sites were also chosen as the best crest by this app's own calculation, which biases them upward. Across all 10 sites our range overlaps NASA's nearby-pixel range; the mean centre-pixel difference is 9.3 points.
+- **The map is being read in the right place**: a negative control with the wrong map orientations gives a mean Sun error of 44 to 50 points, against 11.6 for the correct one.
+- NASA's maps are computed for ground level and ours for a 2 m mast; ours also uses a finer terrain grid than the 60 m map.
 
 An early version clamped the horizon with the 2 m mast height instead of the site's height above the reference sphere, which made high peaks look permanently dark (a ridge came out at 50% Sun with a 172-day dark spell). It was caught because it disagreed with the published values, and fixed.
 
@@ -88,7 +114,7 @@ An early version clamped the horizon with the 2 m mast height instead of the sit
 - **Not a landing-safety tool.** No rock, slope-of-landing-footprint or hazard assessment. The slope map is a screening aid on a partly interpolated grid.
 - **Away from the pole the terrain is coarser.** The global LOLA map is 237 m per pixel, much larger than a lander footprint, so skylines and slopes there are less detailed than at the pole, and the "gentle ground" score is optimistic on a coarse grid.
 - **LOLA 20 m is partly interpolated** (only part of the pixels contain a measured spot), so close-in horizons at low antenna heights are the least certain part.
-- **Short windows (15–60 days) cannot reproduce multi-year published percentages.** A full 18.6-year batch mode is not built.
+- **The live verdict uses 15–60 day windows**, which cannot reproduce multi-year published percentages by themselves. The full 18.6-year result is precomputed only for the 8 candidate and 11 landing sites; a custom site does not get one (use the best start-date finder instead).
 - **Relay mode is a simple assumption** (Earth contact always available), not a relay orbit model.
 - **Optional AI brief is untested against a live key.** It sends only the verdict numbers, rejects any reply containing a number that is not in the verdict, and falls back to the rule-based text. It needs `ANTHROPIC_API_KEY` on the server and is off on the hosted site.
 - Landing-site coordinates come from the NASA NSSDC Apollo table and public mission reports; verify before any real use.
@@ -125,6 +151,8 @@ ANTHROPIC_API_KEY=your-key npm run dev
 | `npm run bake:lola` | Re-bakes the polar terrain files from NASA |
 | `npm run bake:global` | Re-bakes the non-polar landing-site terrain |
 | `npm run bake:map` | Re-bakes the whole-pole map |
+| `npm run longterm` | Recomputes the 18.6-year statistics for all 19 sites (about 15 minutes, needs network) |
+| `npm run validate:nasa` | Compares them with NASA's own Sun and Earth illumination maps |
 | `npm run refine:presets` / `npm run find:rims` | The scans used to choose the candidate sites |
 | `scripts/spice_check.py` | Independent NAIF SPICE cross-check (set-up steps are in its header) |
 
@@ -153,6 +181,7 @@ Built with React, TypeScript, Vite, three.js, geotiff.js and hand-written SVG ch
 
 - NASA LRO / LOLA team; NASA Goddard PGDA, *A New View of the Lunar South Pole from LOLA* (Barker et al., PSJ 4, 183, 2023; DOI 10.60903/gsfcpgda-lola-spole). PGDA states no explicit licence; check before any commercial use.
 - NASA JPL Horizons System and NAIF SPICE.
+- NASA LOLA *Lunar Polar Illumination* maps (E. Mazarico; PGDA product 69, PDS `AVGVISIB_*`), used as the independent check above.
 - Mazarico et al. (2011), Gläser et al. (2014) and NASA SVS 4893 / 4944 for illumination studies and the method.
 - Apollo landing coordinates: NASA NSSDC (Wagner et al., Icarus 283, 2017).
 - NASA does not endorse this project. Data use follows each provider's terms.

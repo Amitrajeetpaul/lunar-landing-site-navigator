@@ -12,6 +12,8 @@
     "bake:lola": "tsx scripts/bake-lola.ts",
     "bake:map": "tsx scripts/bake-pole-map.ts",
     "bake:global": "tsx scripts/bake-global.ts",
+    "longterm": "tsx scripts/longterm.ts",
+    "validate:nasa": "tsx scripts/validate-nasa-illumination.ts",
     "find:rims": "tsx scripts/find-rims.ts",
     "benchmark": "tsx scripts/benchmark.ts",
     "refine:presets": "tsx scripts/refine-presets.ts",
