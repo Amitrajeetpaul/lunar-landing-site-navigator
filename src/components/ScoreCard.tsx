@@ -15,7 +15,7 @@ export function ScoreCard({ score, w, setW }: { score: Score; w: Weights; setW: 
           <b>{p.value === null ? 'n/a' : p.value.toFixed(0)}</b>
         </div>
       ))}
-      <details>
+      <details open={(new URLSearchParams(location.search).get('open') ?? '').includes('weights')}>
         <summary>Adjust the weights</summary>
         {(Object.keys(NAMES) as (keyof Weights)[]).map((k) => (
           <label key={k} className="wrow">{NAMES[k]}<input type="range" min={0} max={100} value={w[k]} onChange={(e) => setW({ ...w, [k]: +e.target.value })} /><b>{w[k]}</b></label>

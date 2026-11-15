@@ -245,7 +245,7 @@ export function App() {
               <div className="card">
                 <div className="card-h"><span className="ico"><IconMountain /></span><b>Terrain data</b><span className={`badge ${terrainBadge[1]}`}>{terrainBadge[0]}</span></div>
                 <small className="muted">{upload ? upload.label : lola.status === 'loading' ? 'Reading NASA LOLA terrain…' : terrain.label}{!upload && lola.msg ? ` ${lola.msg} Showing the stand-in.` : ''}</small>
-                <details>
+                <details open={(new URLSearchParams(location.search).get('open') ?? '').includes('heightmap')}>
                   <summary>Use my own heightmap</summary>
                   <p className="muted tiny">Load a grayscale heightmap exported from NASA Moon Trek or a LOLA model, set its real elevation range and width. The site is the image centre.</p>
                   <input ref={fileRef} type="file" accept="image/*" />
