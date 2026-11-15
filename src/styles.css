@@ -52,7 +52,7 @@ h3 { margin:0 0 10px; font:700 20px/1.2 var(--font); letter-spacing:-.01em; colo
 .site:hover { border-color:#34478a; box-shadow:var(--shadow-lift); } .site.on { border-color:#2f4ba0; background:#111c3d; } .site.on .ico { color:var(--sun); }
 .meta { display:flex; flex-direction:column; flex:1; min-width:0; } .meta b { font:600 14px var(--font); } .meta small { color:var(--mut); }
 .sel { padding:4px 12px; border-radius:999px; font-size:12px; border:1px solid var(--accent); color:var(--accent); white-space:nowrap; }
-.site.on .sel { background:#3b82f6; border-color:#3b82f6; color:#fff; }
+.site.on .sel { background:#2563eb; border-color:#2563eb; color:#fff; }
 
 .now { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-card); box-shadow:var(--shadow-rest); margin-bottom:10px; }
 .now .meta small { font-family:var(--font); font-size:12px; }
