@@ -35,7 +35,7 @@ export function WindowFinder({ site, from, days: windowDays, mast, useHorizons, 
     <div className="panel">
       <h3>Best start-date finder · {site.name}</h3>
       <p className="muted">Scores every start date over the next {SCAN} days (from the window start), each for a {days}-day mission window, from a single ephemeris request. Ranked by time with Sun and Earth together, then by shortest joint outage.</p>
-      <label className="inl">Visit length <input type="number" min={1} max={60} value={visit} onChange={(e) => setVisit(Math.min(60, Math.max(1, Math.round(+e.target.value) || 1)))} /> days</label>
+      <label className="inl" style={{ margin: "8px 0 16px" }}>Visit length <input type="number" min={1} max={60} value={visit} onChange={(e) => setVisit(Math.min(60, Math.max(1, Math.round(+e.target.value) || 1)))} /> days</label>
       <div className="row"><button className="primary" onClick={run} disabled={busy}>{busy ? 'Scanning…' : `Scan ${SCAN} days`}</button></div>
       {err && <p className="muted">Scan failed: {err}</p>}
       {res && sc.length > 0 && (
