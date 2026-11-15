@@ -315,7 +315,7 @@ export function App() {
                 <div className="label">Plain-language brief</div>
                 <p>{ai && ai.key === briefKey ? ai.text : brief(site.name, days, verdict, relay)}</p>
                 <div className="row"><button onClick={writeAi} disabled={aiBusy}>{aiBusy ? 'Writing…' : ai && ai.key === briefKey ? 'Rewrite with AI' : 'Write with AI'}</button>{ai && ai.key === briefKey && <button onClick={() => setAi(null)}>Show rule-based</button>}</div>
-                <small className="muted">{ai && ai.key === briefKey ? <><span className="badge ok">AI-WRITTEN</span> Every number was checked against the verdict. </> : 'Rule-based from the numbers on this page. '}Optional AI step: only the verdict numbers and the site name are sent to the Claude API, through the local server; the verdict itself is always plain calculation.</small>
+                <small className="muted">{ai && ai.key === briefKey ? <><span className="badge ok">AI-WRITTEN</span> Every number was checked against the verdict, but the wording is the AI's: read it against the numbers shown. </> : 'Rule-based from the numbers on this page. '}Optional AI step: only the verdict numbers and the site name are sent to the AI provider you configured (Claude or Groq), through the local server; the verdict itself is always plain calculation.</small>
                 {aiMsg && <small className="muted">{aiMsg}</small>}
               </div>
             </section>

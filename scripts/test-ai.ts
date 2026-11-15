@@ -3,7 +3,7 @@
 // must survive (good reply, invented numbers, 429, 501/404 = no key, malformed JSON, empty text, network failure).
 import { aiBrief, numbersOk, type Facts } from '../src/lib/aiBrief';
 
-const f: Facts = { site: 'Apollo 11', window_days: 30, antenna_m: 2, relay_assumed: false, sun_pct: 49, earth_pct: 100, both_pct: 49, longest_sun_outage_days: 14.9, longest_earth_outage_days: 0, longest_both_outage_days: 14.9, mission_score: 48, slope_under_10deg_pct: 100, max_sun_elevation_deg: 62.5 };
+const f: Facts = { site: 'Apollo 11', window_days: 30, antenna_m: 2, relay_assumed: false, sun_pct: 49, earth_pct: 100, both_pct: 49, longest_sun_outage_days: 14.9, longest_earth_outage_days: 0, longest_both_outage_days: 14.9, mission_score: 48, slope_under_10deg_pct: 100, max_sun_elevation_deg: 62.5, sun_label: 'moderate', earth_label: 'strong' };
 let pass = 0, fail = 0;
 const ok = (name: string, cond: boolean) => { cond ? pass++ : fail++; console.log(`${cond ? 'PASS' : 'FAIL'}  ${name}`); };
 
@@ -18,6 +18,11 @@ ok('unrelated near-miss rejected (16 for 14.9)', !numbersOk('The longest dark sp
 ok('thousands separators are rejected, not mis-read (1,200)', !numbersOk('About 1,200 hours.', f).ok);
 ok('unicode minus does not hide a number (−5)', !numbersOk('The Sun is −5 degrees below.', f).ok);
 ok('hours form of a sub-day figure accepted', numbersOk('Dark for 6 hours.', { ...f, longest_sun_outage_days: 0.25 }).ok);
+
+ok('threshold from a fact key is allowed (under 10°)', numbersOk('Slope is under 10° across 100% of the ground.', f).ok);
+ok('threshold NOT in a key is still rejected (under 7°)', !numbersOk('Slope is under 7° across 100% of the ground.', f).ok);
+ok('non-breaking space in a site name (Apollo\u00A011)', numbersOk('During the window at Apollo\u00A011 the Sun is up 49%.', f).ok);
+ok('typographic hyphen and apostrophe in a site name', numbersOk('Chang\u2019e\u20114 is on the far side.', { ...f, site: "Chang'e-4" }).ok);
 
 // ---- mock server
 type Mode = 'good' | 'invented' | '429' | '501' | '404' | 'malformed' | 'empty' | 'network';
