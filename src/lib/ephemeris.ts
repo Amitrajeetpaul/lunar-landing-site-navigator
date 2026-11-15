@@ -78,14 +78,16 @@ function queued<T>(fn: () => Promise<T>): Promise<T> {
   return run as Promise<T>;
 }
 
-async function horizonsBody(cmd: string, site: Site, t0: number, days: number): Promise<[number, number, number][]> {
+let HB = '/horizons'; // base URL of the Horizons proxy (a script can point it straight at NASA)
+export const setHorizonsBase = (u: string) => { HB = u; };
+async function horizonsBody(cmd: string, site: Site, t0: number, days: number, timeoutMs = 25000): Promise<[number, number, number][]> {
   const q = new URLSearchParams({
     format: 'json', COMMAND: `'${cmd}'`, OBJ_DATA: "'NO'", MAKE_EPHEM: "'YES'", EPHEM_TYPE: "'OBSERVER'",
     CENTER: "'coord@301'", COORD_TYPE: "'GEODETIC'", SITE_COORD: `'${site.lon},${site.lat},0'`,
     START_TIME: `'${fmtT(t0)}'`, STOP_TIME: `'${fmtT(t0 + days * 86400000)}'`,
     STEP_SIZE: `'${STEP_H} h'`, QUANTITIES: "'4,13'", ANG_FORMAT: "'DEG'", CSV_FORMAT: "'YES'",
   });
-  const res = await fetch(`/horizons?${q}`, { signal: AbortSignal.timeout(25000) });
+  const res = await fetch(`${HB}${HB.includes('?') ? '&' : '?'}${q}`, { signal: AbortSignal.timeout(timeoutMs) });
   if (!res.ok) throw new Error(`Horizons HTTP ${res.status}`);
   const text: string = (await res.json()).result ?? '';
   const a = text.indexOf('$$SOE'), b = text.indexOf('$$EOE');
@@ -139,4 +141,21 @@ export function sampleAt(samples: Sample[], t: number): Sample {
     earthAz: lerpAz(a.earthAz, b.earthAz, f), earthEl: a.earthEl + (b.earthEl - a.earthEl) * f,
     sunR: a.sunR + (b.sunR - a.sunR) * f, earthR: a.earthR + (b.earthR - a.earthR) * f,
   };
+}
+
+/** One full lunar nodal cycle (2026-01-01 to 2044-09-01, 3-hour steps) from Horizons, fetched in 3-year chunks so no single request is slow. */
+export const LONG_T0 = Date.UTC(2026, 0, 1), LONG_DAYS = Math.round((Date.UTC(2044, 8, 1) - Date.UTC(2026, 0, 1)) / 86400000);
+export async function longEphemeris(site: Site, onProgress?: (done: number, total: number) => void): Promise<Sample[]> {
+  const CHUNK = 1096, chunks = Math.ceil(LONG_DAYS / CHUNK), rows: Record<string, [number, number, number][]> = { '10': [], '399': [] };
+  let step = 0;
+  for (const cmd of ['10', '399']) {
+    for (let c = 0; c < chunks; c++) {
+      const t0 = LONG_T0 + c * CHUNK * 86400000, days = Math.min(CHUNK, LONG_DAYS - c * CHUNK);
+      const part = await queued(() => horizonsBody(cmd, site, t0, days, 60000));
+      rows[cmd].push(...(c === 0 ? part : part.slice(1))); // the chunk's first row repeats the previous chunk's last
+      onProgress?.(++step, 2 * chunks);
+    }
+  }
+  const n = Math.min(rows['10'].length, rows['399'].length), sun = rows['10'], earth = rows['399'];
+  return Array.from({ length: n }, (_, i) => ({ t: LONG_T0 + i * STEP_MS, sunAz: sun[i][0], sunEl: sun[i][1], earthAz: earth[i][0], earthEl: earth[i][1], sunR: sun[i][2], earthR: earth[i][2] }));
 }

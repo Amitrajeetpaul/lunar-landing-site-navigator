@@ -11,7 +11,7 @@ import { ShareCard } from './components/ShareCard';
 import { Report } from './components/Report';
 import { HorizonChart } from './components/HorizonChart';
 import { Scene3D } from './components/Scene3D';
-import { IconBars, IconCheck, IconCompare, IconLearn, IconEarth, IconMountain, IconPin, IconSun, Logo } from './components/Icons';
+import { IconBars, IconCheck, IconCompare, IconInfo, IconLearn, IconEarth, IconMountain, IconPin, IconSun, IconWarning, Logo } from './components/Icons';
 import { Timeline } from './components/Timeline';
 import { fmtDur, fromInput, slopeUnder10Of, toInput } from './lib/analysis';
 import { DEFAULT_WEIGHTS, missionScore, type Weights } from './lib/score';
@@ -186,6 +186,7 @@ export function App() {
         <span className="avatar" title="Team GIT_HAPPENS">G</span>
       </header>
 
+      <main>
       {tab === 'learn' ? (
         <Learn site={site} samples={samples} days={days} />
       ) : tab === 'compare' ? (
@@ -202,7 +203,7 @@ export function App() {
                 <span>{relay ? 'Relay assumed' : `Earth in view ${verdict.earthPct.toFixed(0)}%`} · both {verdict.bothPct.toFixed(0)}% · score {score.score.toFixed(0)}/100</span>
               </div>
               {terrain.kind === 'procedural' && !upload && lola.status !== 'loading' && (
-                <div className="warnbox"><b>Stand-in terrain.</b> The NASA terrain read failed (network or server), so the skyline is a placeholder. Sun and Earth angles are still real (JPL Horizons) but the percentages are not reliable until the real terrain loads. Re-select the site to retry.</div>
+                <div className="warnbox" role="alert"><IconWarning /><span><b>Stand-in terrain.</b> The NASA terrain read failed (network or server), so the skyline is a placeholder. Sun and Earth angles are still real (JPL Horizons) but the percentages are not reliable until the real terrain loads. Re-select the site to retry.</span></div>
               )}
             </section>
 
@@ -277,7 +278,7 @@ export function App() {
             <section className={'blk' + (['site','timeline'].includes(pane) ? '' : ' off')} data-pane="site" style={{ '--o': 4 } as CSSProperties}>
               <div className="card">
                 <div className="label">Time (UTC)</div>
-                <input type="datetime-local" value={toInput(cursor)} onChange={(e) => setTime(e.target.value)} />
+                <input type="datetime-local" aria-label="Time (UTC)" value={toInput(cursor)} onChange={(e) => setTime(e.target.value)} />
                 <div className="row">
                   <button className="primary" onClick={() => setPlay(!play)}>{play ? 'Pause' : 'Play'}</button>
                   <label className="inl">Speed <select value={speed} onChange={(e) => setSpeed(+e.target.value)}>{SPEEDS.map(([l, v]) => <option key={l} value={v}>{l}</option>)}</select></label>
@@ -307,7 +308,7 @@ export function App() {
 
             <section className={'blk' + (['verdict'].includes(pane) ? '' : ' off')} data-pane="verdict" style={{ '--o': 3 } as CSSProperties}>
               <PowerCard now={now.s} samples={samples} sunFlag={flags.sun} sunVisible={now.sunVis} days={days} />
-              <LongTermCard site={site} />
+              <LongTermCard site={site} terrain={terrain} />
             </section>
 
             <section className={'blk' + (['verdict'].includes(pane) ? '' : ' off')} data-pane="verdict" style={{ '--o': 4 } as CSSProperties}>
@@ -352,7 +353,7 @@ export function App() {
               <div className="card flush">
                 <HorizonChart horizon={horizon} samples={samples} now={now.s} rule={rule} />
                 <div className="chips"><span className="chipk"><i style={{ background: 'var(--sun)' }} />Sun path</span><span className="chipk"><i style={{ background: 'var(--earth)' }} />Earth path</span></div>
-                <div className="note">Anything below the outline is blocked by terrain. Planning aid, not landing clearance.</div>
+                <div className="note"><IconInfo /><span>Anything below the outline is blocked by terrain. Planning aid, not landing clearance.</span></div>
               </div>
             </section>
 
@@ -375,6 +376,7 @@ export function App() {
         </div>
       )}
 
+      </main>
       <Report siteName={site.name} lat={site.lat} lon={site.lon} start={start} days={days} mast={mast} ruleLabel={RULES.find((r) => r.id === rule)!.label} relay={relay}
         source={srcLabel} terrainLabel={terrain.label} verdict={verdict} lo={lo} hi={hi} score={score} slope={slope100} horizon={horizon} samples={samples} now={now.s} rule={rule}
         brief={brief(site.name, days, verdict, relay)} />

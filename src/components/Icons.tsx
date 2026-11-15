@@ -14,6 +14,8 @@ export const IconMountain = ({ size }: { size?: number }) => (
 export const IconBars = ({ size }: { size?: number }) => P('M4 4v16h16M8 16v-5M12 16V8M16 16v-3', size);
 export const IconCompare = ({ size }: { size?: number }) => P('M4 5h7v14H4zM13 9h7v10h-7z', size);
 export const IconLearn = ({ size }: { size?: number }) => P('M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2V5ZM6 18h13v3H6', size);
+export const IconInfo = ({ size }: { size?: number }) => P('M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 11v5M12 8h.01', size ?? 16);
+export const IconWarning = ({ size }: { size?: number }) => P('M12 4 2.8 20h18.4L12 4ZM12 10v4.5M12 17.5h.01', size ?? 16);
 export const IconSun = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#f4b73f" strokeWidth="2" strokeLinecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" /></g><circle cx="12" cy="12" r="4.2" fill="#f4b73f" /></svg>
 );
@@ -22,8 +24,7 @@ export const IconEarth = () => (
 );
 export const Logo = () => (
   <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
-    <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f6c453" /><stop offset="1" stopColor="#5fe3c0" /></linearGradient></defs>
-    <rect width="34" height="34" rx="9" fill="url(#lg)" />
+    <rect width="34" height="34" rx="9" fill="#f4b73f" />
     <path d="M21.5 8.5a9 9 0 1 0 4 12.4A8 8 0 0 1 21.5 8.5Z" fill="#101a3d" />
   </svg>
 );

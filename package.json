@@ -17,6 +17,8 @@
     "validate:nasa": "tsx scripts/validate-nasa-illumination.ts",
     "test:ai": "tsx scripts/test-ai.ts && tsx scripts/test-ai-api.ts",
     "check:trek": "tsx scripts/crosscheck-trek.ts",
+    "check:longterm": "tsx scripts/check-longterm-fn.ts",
+    "sun:sensitivity": "tsx scripts/sun-sensitivity.ts",
     "find:rims": "tsx scripts/find-rims.ts",
     "benchmark": "tsx scripts/benchmark.ts",
     "refine:presets": "tsx scripts/refine-presets.ts",

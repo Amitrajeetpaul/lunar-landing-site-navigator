@@ -51,7 +51,7 @@ export function Compare({ start, days, mast, useHorizons, rule, current, relay, 
           <button onClick={() => setScns(PRESETS.map((s) => ({ id: nextId++, site: s, start })))}>All presets, same date</button>
           <button onClick={() => setScns([0, 15, 30, 45].map((d) => ({ id: nextId++, site: current, start: start + d * DAY })))}>Current site, 4 start dates</button>
           <span className="spacer" />
-          <select value={pick} onChange={(e) => setPick(+e.target.value)}>{PRESETS.map((s, i) => <option key={s.name} value={i}>{s.name}</option>)}</select>
+          <select aria-label="Preset site to add" value={pick} onChange={(e) => setPick(+e.target.value)}>{PRESETS.map((s, i) => <option key={s.name} value={i}>{s.name}</option>)}</select>
           <button onClick={() => setScns([...scns, { id: nextId++, site: PRESETS[pick], start }])}>Add</button>
           <button onClick={() => setScns([...scns, { id: nextId++, site: current, start }])}>Add current site</button>
         </div>
@@ -65,7 +65,7 @@ export function Compare({ start, days, mast, useHorizons, rule, current, relay, 
               <div className="row"><b>{s.site.name}</b>{best === s.id && <span className="badge ok">BEST</span>}{a && <span className="badge" title="Mission score">{sc(s.id).toFixed(0)}/100</span>}<span className="spacer" />
                 <button className="x" onClick={() => setScns(scns.filter((q) => q.id !== s.id))} aria-label="Remove">×</button></div>
               <div className="muted mono">lat {s.site.lat} · lon {s.site.lon}</div>
-              <input type="datetime-local" value={toInput(s.start)} onChange={(e) => { const v = fromInput(e.target.value); if (!Number.isNaN(v)) setScns(scns.map((q) => q.id === s.id ? { ...q, start: v } : q)); }} />
+              <input type="datetime-local" aria-label={`Start date for ${s.site.name}`} value={toInput(s.start)} onChange={(e) => { const v = fromInput(e.target.value); if (!Number.isNaN(v)) setScns(scns.map((q) => q.id === s.id ? { ...q, start: v } : q)); }} />
               {a ? (
                 <>
                   <Bar label="Sun" v={a.verdict.sunPct} c="var(--sun)" />

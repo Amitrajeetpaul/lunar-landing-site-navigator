@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { Site } from '../lib/sites';
+import type { Terrain } from '../lib/terrain';
+import { longEphemeris } from '../lib/ephemeris';
+import { computeLongTerm } from '../lib/longterm';
 
 interface Stat { sun: number; earth: number; both: number; sunDarkD: number; earthDarkD: number; bothDarkD: number }
 interface Entry { name: string; lat: number; lon: number; mast: Record<string, { any: Stat; whole: Stat }>; yearly?: { sunMin: number; sunMax: number; bothMin: number; bothMax: number } }
@@ -12,16 +15,36 @@ const dur = (d: number) => (d > 6000 ? 'never lit' : d < 1 ? `${Math.round(d * 2
 const rng = (r: [number, number]) => (Math.round(r[0]) === Math.round(r[1]) ? `${Math.round(r[0])}%` : `${Math.round(r[0])}–${Math.round(r[1])}%`);
 
 /** Full lunar nodal cycle (about 18.6 years, one-hour-class steps) for the candidate and landing sites, precomputed from Horizons + real LOLA terrain. */
-export function LongTermCard({ site }: { site: Site }) {
+const computed = new Map<string, Entry>(); // full cycles computed in this browser session for custom sites
+const keyOf = (s: Site) => `${s.lat.toFixed(4)},${s.lon.toFixed(4)}`;
+
+export function LongTermCard({ site, terrain }: { site: Site; terrain: Terrain }) {
   const [data, setData] = useState<{ lt: Entry[]; nasa: Nasa[] } | null>(null);
   useEffect(() => { load().then(setData); }, []);
-  const e = data?.lt.find((x) => near(x.lat, site.lat) && near(x.lon, site.lon));
+  const [run, setRun] = useState<{ key: string; state: 'busy' | 'err'; done: number; total: number } | null>(null);
+  const [bump, setBump] = useState(0);
+  const e = data?.lt.find((x) => near(x.lat, site.lat) && near(x.lon, site.lon)) ?? computed.get(keyOf(site));
+  void bump;
+  const compute = async () => {
+    const key = keyOf(site); setRun({ key, state: 'busy', done: 0, total: 14 });
+    try {
+      const samples = await longEphemeris(site, (done, total) => setRun({ key, state: 'busy', done, total }));
+      computed.set(key, { lat: site.lat, lon: site.lon, name: site.name, ...computeLongTerm(samples, terrain) } as Entry); setRun(null); setBump((b) => b + 1);
+    } catch { setRun({ key, state: 'err', done: 0, total: 0 }); }
+  };
   const n = data?.nasa.find((x) => near(x.lat, site.lat) && x.name.split(' (')[0] === site.name.split(' (')[0]);
   return (
     <div className="card">
       <div className="label">Long term · 18.6-year cycle (2026–2044)</div>
       {!data && <small className="muted">Loading…</small>}
-      {data && !e && <small className="muted">Full-cycle statistics are precomputed for the candidate and landing sites. For a custom site, use the best start-date finder on the Compare tab.</small>}
+      {data && !e && (
+        <>
+          <small className="muted">Precomputed for the candidate and landing sites. For this site you can compute the full cycle here: it asks JPL Horizons for 18.6 years of Sun and Earth positions (about a minute) and uses the terrain already loaded.</small>
+          {terrain.kind !== 'lola' && <small className="muted">It needs real LOLA terrain, which is not loaded for this site.</small>}
+          <div className="row"><button className="primary" onClick={compute} disabled={terrain.kind !== 'lola' || run?.state === 'busy'} aria-busy={run?.state === 'busy'}>{run?.state === 'busy' ? `Computing… ${Math.round((100 * run.done) / run.total)}%` : 'Compute the full 18.6-year cycle'}</button></div>
+          {run?.state === 'err' && <small className="muted">JPL Horizons did not answer for the full cycle. Try again in a moment.</small>}
+        </>
+      )}
       {e && (
         <>
           {(['2', '10'] as const).map((m) => e.mast[m] && (
