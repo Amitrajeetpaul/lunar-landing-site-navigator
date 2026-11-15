@@ -71,7 +71,8 @@ details { margin-top:4px; } summary { cursor:pointer; color:#9bb2ff; font-size:1
 button, select, input { background:var(--card2); color:var(--ink); border:1px solid var(--line2); border-radius:12px; padding:8px 13px; font-size:14px; }
 button { cursor:pointer; border-radius:var(--r-card); font-weight:600; } button:hover { border-color:#4a5d9c; }
 button.primary { background:#2f5fd0; border-color:#3b6fe6; color:#fff; padding:9px 20px; }
-input[type=checkbox] { width:auto; } input[type=file] { width:100%; margin:6px 0; padding:5px; } input[type=datetime-local] { width:100%; }
+input[type=checkbox] { width:auto; } input[type=file] { width:100%; margin:6px 0; padding:5px; } input[type=datetime-local] { width:100%; } input[type=date], input[type=time], input[type=datetime-local] { color-scheme:dark; cursor:pointer; }
+.dtrow { display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px; margin-bottom:10px; } .dtrow .dt { flex-direction:column; align-items:flex-start; gap:4px; } .card .dtrow .inl input[type=date] { width:175px !important; flex:0 0 auto !important; min-width:175px !important; } .card .dtrow .inl input[type=time] { width:150px !important; flex:0 0 auto !important; min-width:150px !important; }
 .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 .inl { display:flex; align-items:center; gap:8px; color:var(--mut); font-size:13px; } .inl input { width:84px; } .inl input[type=checkbox] { width:auto; }
 

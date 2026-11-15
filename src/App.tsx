@@ -278,8 +278,12 @@ export function App() {
 
             <section className={'blk' + (['site','timeline'].includes(pane) ? '' : ' off')} data-pane="site" style={{ '--o': 4 } as CSSProperties}>
               <div className="card">
-                <div className="label">Time (UTC)</div>
-                <input type="datetime-local" aria-label="Time (UTC)" value={toInput(cursor)} onChange={(e) => setTime(e.target.value)} />
+                <div className="label">Pick date and time (UTC)</div>
+                <div className="dtrow">
+                  <label className="inl dt">Date <input type="date" aria-label="Date (UTC)" value={toInput(cursor).slice(0, 10)} onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* not supported */ } }} onChange={(e) => e.target.value && setTime(`${e.target.value}T${toInput(cursor).slice(11, 16)}`)} /></label>
+                  <label className="inl dt">Time <input type="time" aria-label="Time of day (UTC)" value={toInput(cursor).slice(11, 16)} onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* not supported */ } }} onChange={(e) => e.target.value && setTime(`${toInput(cursor).slice(0, 10)}T${e.target.value}`)} /></label>
+                  <button onClick={() => setTime(new Date().toISOString().slice(0, 16))}>Now</button>
+                </div>
                 <div className="row">
                   <button className="primary" onClick={() => setPlay(!play)}>{play ? 'Pause' : 'Play'}</button>
                   <label className="inl">Speed <select value={speed} onChange={(e) => setSpeed(+e.target.value)}>{SPEEDS.map(([l, v]) => <option key={l} value={v}>{l}</option>)}</select></label>
