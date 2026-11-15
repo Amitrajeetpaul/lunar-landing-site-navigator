@@ -3,6 +3,7 @@
 // JPL Horizons Sun and Earth az/el from each site + the real LOLA skyline (baked in public/lola) -> % of time with Sun, Earth, both and
 // the longest dark spell, for a 2 m and a 10 m mast, under the "whole disc" and "any part" rules. Writes public/longterm.json.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { lolaCovers } from '../src/lib/lola';
 import { decodeTerrain, lolaSlug } from '../src/lib/lola';
 import { computeHorizon } from '../src/lib/terrain';
 import { flagsFor, verdictFor, type Rule } from '../src/lib/visibility';
@@ -28,9 +29,11 @@ async function horizons(cmd: string, s: Site): Promise<[number, number, number][
 }
 
 const sites: (Site & { kind: string })[] = [...PRESETS.map((s) => ({ ...s, kind: 'candidate' })), ...MISSIONS.map((s) => ({ ...s, kind: 'landing' }))];
-const out: any = { source: 'JPL Horizons (DE441) + NASA LOLA terrain', start: START, stop: STOP, stepHours: 3, years: 18.67, masts: [2, 10], sites: [] };
+const GLOBAL_ONLY = process.argv.includes('--global-only'); // redo only the sites whose terrain comes from the global map (after a terrain re-bake)
+const out: any = GLOBAL_ONLY && existsSync('public/longterm.json') ? JSON.parse(readFileSync('public/longterm.json', 'utf8')) : { source: 'JPL Horizons (DE441) + NASA LOLA terrain', start: START, stop: STOP, stepHours: 3, years: 18.67, masts: [2, 10], sites: [] };
 const t0 = Date.parse(START.replace(' ', 'T') + ':00Z');
 for (const s of sites) {
+  if (GLOBAL_ONLY && lolaCovers(s.lat)) continue;
   const f = `public/lola/${lolaSlug(s)}.bin`; if (!existsSync(f)) { console.warn('no terrain file for', s.name); continue; }
   const b = readFileSync(f), terrain = decodeTerrain(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer)!;
   const t1 = Date.now();
@@ -51,7 +54,7 @@ for (const s of sites) {
       }
     }
   }
-  out.sites.push(entry); writeFileSync('public/longterm.json', JSON.stringify(out));
+  const at = out.sites.findIndex((x: any) => x.name === s.name); if (at >= 0) out.sites[at] = entry; else out.sites.push(entry); writeFileSync('public/longterm.json', JSON.stringify(out));
   const a = entry.mast[2].any, w = entry.mast[2].whole;
   console.log(`${s.name.padEnd(44)} 2m: Sun ${w.sun}-${a.sun}%  Earth ${w.earth}-${a.earth}%  both ${w.both}-${a.both}%  longest dark Sun ${a.sunDarkD} d  (${((Date.now() - t1) / 1000).toFixed(0)}s)`);
 }

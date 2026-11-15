@@ -3,7 +3,7 @@ import type { Site } from './sites';
 import { loadLolaTerrain } from './lola';
 import { computeHorizon, proceduralTerrain, type Terrain } from './terrain';
 import { flagsFor, verdictFor, type Flags, type Rule, type Verdict } from './visibility';
-import { radiusFor, slopeStats } from './slope';
+import { NASA_BASELINE_M, radiusFor, slopeStats } from './slope';
 
 export interface Analysis { site: Site; start: number; days: number; samples: Sample[]; source: Source; flags: Flags; verdict: Verdict; terrain: Terrain['kind']; slopeUnder10: number | null }
 
@@ -13,7 +13,7 @@ export async function terrainFor(site: Site): Promise<Terrain> {
   return proceduralTerrain(site.lat, site.lon);
 }
 
-export const slopeUnder10Of = (t: Terrain) => (t.kind === 'lola' ? slopeStats(t.layers[0], radiusFor(t.layers[0], 100))?.under10 ?? null : null);
+export const slopeUnder10Of = (t: Terrain) => (t.kind === 'lola' ? slopeStats(t.layers[0], radiusFor(t.layers[0], 100), NASA_BASELINE_M)?.under10 ?? null : null);
 
 export async function analyze(site: Site, start: number, days: number, mastM: number, useHorizons: boolean, rule: Rule = 'any', terrain?: Terrain, relay = false): Promise<Analysis> {
   const { samples, source } = await getEphemeris(site, start, days, useHorizons);

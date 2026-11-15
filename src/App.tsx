@@ -5,6 +5,7 @@ import { PoleMap } from './components/PoleMap';
 import { PowerCard } from './components/PowerCard';
 import { LongTermCard } from './components/LongTermCard';
 import { SlopeCard } from './components/SlopeCard';
+import { TrekCheck } from './components/TrekCheck';
 import { ScoreCard } from './components/ScoreCard';
 import { ShareCard } from './components/ShareCard';
 import { Report } from './components/Report';
@@ -254,6 +255,7 @@ export function App() {
                   <div className="row"><button onClick={applyUpload}>Apply</button>{upload && <button onClick={() => setUpload(null)}>Reset</button>}<span className="muted tiny">{up.msg}</span></div>
                 </details>
               </div>
+              <TrekCheck site={site} terrain={terrain} />
               <SlopeCard terrain={terrain} />
               <div className="card links">
                 <div className="label">Explore further</div>

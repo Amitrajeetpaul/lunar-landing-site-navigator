@@ -1,5 +1,5 @@
 // Real terrain for ANY point on the Moon: NASA LOLA global shape map (PDS, LRO_ES_52), simple-cylindrical raw int16 files
-// LDEM_128 (236.9 m/px), LDEM_64 (473.8 m), LDEM_16 (1.9 km), height in metres relative to the 1737.4 km sphere (DN * 0.5),
+// LDEM_256 (118 m/px, four hemisphere tiles), LDEM_64 (473.8 m), LDEM_16 (1.9 km), height in metres relative to the 1737.4 km sphere (DN * 0.5),
 // little-endian, one row per 1/ppd degree, longitude 0..360 east. Read with HTTP range requests, re-sampled onto the site's
 // local east/north grids exactly like the polar product, so the same horizon code runs on it.
 import type { Layer } from './terrain';
@@ -28,8 +28,27 @@ async function range(file: string, a: number, b: number): Promise<ArrayBuffer> {
 
 interface Win { ppd: number; i0: number; rows: number; cols: number; jc: number; half: number; z: Float32Array }
 
+/** LDEM_256 (118 m) ships as four hemisphere tiles: rows 0-23039 = 90N..0 (file 00N_90N), 23040+ = 0..90S (file 90S_00S); columns 0-46079 = 0..180E, then 180..360E. */
+async function readWindow256(latMin: number, latMax: number, lon: number, lonSpan: number): Promise<Win> {
+  const ppd = 256, W = 360 * ppd, H = 180 * ppd, T = 23040, TW = 46080;
+  const i0 = Math.max(0, Math.floor((90 - latMax) * ppd) - 1), i1 = Math.min(H - 1, Math.ceil((90 - latMin) * ppd) + 1), rows = i1 - i0 + 1;
+  const jc = Math.floor((((lon % 360) + 360) % 360) * ppd), half = Math.min(Math.ceil(lonSpan * ppd) + 2, Math.floor(W / 2) - 1), cols = 2 * half + 1;
+  const z = new Float32Array(rows * cols);
+  await Promise.all(Array.from({ length: rows }, async (_, r) => {
+    const i = i0 + r, rowTile = i < T ? '00N_90N' : '90S_00S', lr = i < T ? i : i - T;
+    for (let c = 0; c < cols;) { // a window may straddle the equator tiles' lon seam at 180 E or the 360/0 wrap
+      const g = (((jc - half + c) % W) + W) % W, colTile = g < TW ? '000_180' : '180_360', lc = g % TW, n = Math.min(cols - c, TW - lc);
+      const dv = new DataView(await range(`LDEM_256_${rowTile}_${colTile}.IMG`, (lr * TW + lc) * 2, (lr * TW + lc + n) * 2 - 1));
+      for (let k = 0; k < n; k++) z[r * cols + c + k] = dv.getInt16(k * 2, true) * 0.5;
+      c += n;
+    }
+  }));
+  return { ppd, i0, rows, cols, jc, half, z };
+}
+
 /** Heights for rows i0..i1 and columns jc-half..jc+half (longitude wraps at 360). */
 async function readWindow(ppd: number, latMin: number, latMax: number, lon: number, lonSpan: number): Promise<Win> {
+  if (ppd === 256) return readWindow256(latMin, latMax, lon, lonSpan);
   const file = `LDEM_${ppd}.IMG`, W = 360 * ppd, H = 180 * ppd;
   const i0 = Math.max(0, Math.floor((90 - latMax) * ppd) - 1), i1 = Math.min(H - 1, Math.ceil((90 - latMin) * ppd) + 1), rows = i1 - i0 + 1;
   const jc = Math.floor((((lon % 360) + 360) % 360) * ppd), half = Math.min(Math.ceil(lonSpan * ppd) + 2, Math.floor(W / 2) - 1), cols = 2 * half + 1;
@@ -79,7 +98,7 @@ async function layer(site: Site, ppd: number, halfM: number): Promise<Layer> {
 
 // Fine near the site, coarse far away. 150 km reach (the polar product uses 300 km because the Sun hugs the horizon there; elsewhere
 // relief beyond 150 km drops below the horizon by curvature, d^2/2R = 6.5 km at 150 km). Transfer is ~0.3 MB/s, so the far band is kept small.
-const SPEC = [{ ppd: 128, halfM: 6000 }, { ppd: 64, halfM: 25000 }, { ppd: 16, halfM: 150000 }];
+const SPEC = [{ ppd: 256, halfM: 6000 }, { ppd: 64, halfM: 25000 }, { ppd: 16, halfM: 150000 }];
 export async function buildGlobalLayers(site: Site, onStep?: (d: number, t: number) => void): Promise<Layer[]> {
   const out: Layer[] = [];
   for (const [i, s] of SPEC.entries()) { onStep?.(i, SPEC.length); out.push(await layer(site, s.ppd, s.halfM)); }

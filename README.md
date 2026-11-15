@@ -24,9 +24,9 @@ The app is organised in tabs, one task per screen (desktop and phone):
 
 | Tab | What you get |
 |---|---|
-| **Site** | 8 candidate south-pole sites, 11 Apollo / CLPS / Chang'e / Chandrayaan landing sites, custom latitude and longitude, antenna height, a 3D terrain view (orbit and "from the lander"), time controls with animation, and a south-pole map built from real LOLA data. |
+| **Site** | 8 candidate south-pole sites, 11 Apollo / CLPS / Chang'e / Chandrayaan landing sites, custom latitude and longitude, antenna height, a 3D terrain view (orbit and "from the lander"), time controls with animation, and a south-pole map built from real LOLA data with an optional overlay of NASA's own 18.6-year Sun map (permanent shadow in blue). |
 | **Verdict** | Sun and Earth now (with a countdown to sunset and Earthset), longest outage, a solar elevation and power card for three panel types, an adjustable **mission score**, a relay-satellite switch, a plain-language brief (optional AI rewrite), **18.6-year long-term statistics** with NASA's own map shown beside them, a shareable link and a one-page PDF report. |
-| **Horizon** | The terrain skyline in every direction with the Sun and Earth paths over it, the terrain data source, and a slope map from the LOLA grid. |
+| **Horizon** | The terrain skyline in every direction with the Sun and Earth paths over it, the terrain data source, a slope screen against NASA's Artemis "under 10° over 100 m" criterion, and a live cross-check of the terrain height against NASA Moon Trek. |
 | **Timeline** | Hour-by-hour Sun and Earth visibility over 15, 30 or 60 days, with percentages and longest gaps. |
 | **Compare** | A **best start-date finder** (scores every start date over 120 days from one Horizons request) and side-by-side scenarios for different sites or dates. |
 | **Learn** | Why the pole is different (real Sun elevation next to an Earth day, axis tilt, no atmosphere), and a plain-English glossary. |
@@ -55,7 +55,7 @@ Every percentage is shown as a range because the Sun and Earth are discs, not do
 |---|---|---|
 | [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) | Sun and Earth az/el and disc size from any lunar point | Live API call through a proxy; cached; falls back to a fitted series model (badge shows FALLBACK) if unreachable. |
 | [NASA PGDA LOLA south-pole DEM](https://pgda.gsfc.nasa.gov/products/90) (20 m/px, 80–90°S) | Terrain near the pole | Range reads from the cloud-optimised GeoTIFF. |
-| [NASA LOLA global shape map](https://imbrium.mit.edu/DATA/LOLA_GDR/CYLINDRICAL/IMG/) (237 m / 474 m / 1.9 km, whole Moon) | Terrain everywhere else | Range reads from the PDS archive. |
+| [NASA LOLA global shape map](https://imbrium.mit.edu/DATA/LOLA_GDR/CYLINDRICAL/IMG/) (118 m near field from LDEM_256, then 474 m and 1.9 km; whole Moon) | Terrain everywhere else | Range reads from the PDS archive. |
 | [LROC QuickMap](https://quickmap.lroc.im-ldi.com), [NASA Moon Trek](https://trek.nasa.gov/moon/), [CSA Moon Exploration](https://www.asc-csa.gc.ca/eng/astronomy/moon-exploration/) | Exploring and context | **Links only.** QuickMap has no public data API and Moon Trek serves rendered images, not heights, so the numbers come from LOLA itself. |
 | [NAIF SPICE](https://naif.jpl.nasa.gov/naif/) | Independent cross-check | Offline script, not part of the running app. |
 
@@ -67,7 +67,7 @@ The Sun is about 0.5° wide and Earth about 2° wide as seen from the Moon, whic
 
 ### Mission score
 
-A transparent weighted average (adjustable on screen) of four 0–100 parts: **sunlight**, **Sun and Earth together**, **short outages** (100 minus the longest joint outage as a share of half the window) and **gentle ground** (share of ground within 100 m under 10°, LOLA sites only). Defaults are 35 / 30 / 20 / 15. It is a comparison aid, not a safety rating.
+A transparent weighted average (adjustable on screen) of four 0–100 parts: **sunlight**, **Sun and Earth together**, **short outages** (100 minus the longest joint outage as a share of half the window) and **gentle ground** (share of ground within 100 m under 10°, slope measured over about 100 m as in NASA's Artemis criterion; LOLA sites only). Defaults are 35 / 30 / 20 / 15. It is a comparison aid, not a safety rating.
 
 ## Validation
 
@@ -81,6 +81,34 @@ Numbers below come from this repository's own scripts (`npm run benchmark`, `scr
 | Mast 2 m → 10 m | +1 to +4 points | Published +3.4 points (Gläser et al.) |
 | NAIF SPICE vs live Horizons (3 sites, 30 days, 3 h) | agree to about 0.00003° | Same JPL data, so this validates our geometry and frame set-up, not the ephemeris itself |
 | Fallback model vs SPICE | Sun elevation ≤ 0.06°, Earth elevation 0.5° rms (0.9° max) | |
+
+### Terrain cross-check against NASA Moon Trek
+
+NASA's [Moon Trek](https://trek.nasa.gov/moon/) serves LOLA elevation through an ArcGIS ImageServer (`LRO_LOLA_DEM_Global_256ppd_v06`, CORS-open) that can be queried for a point. That is a separate server and pipeline from the ones this app reads, so it makes a good independent check of the terrain reader, the projection and the frame (both use LOLA, so it does not test the underlying data). `npm run check:trek` compares this app's baked terrain height at each of the 19 sites with Moon Trek's answer, and the Horizon tab does the same live for the selected site. Heights are metres above the 1737.4 km sphere.
+
+| Site | This app | NASA Moon Trek | Difference |
+|---|---|---|---|
+| Shackleton ridge | 1729.5 m | 1730.5 m | -1.0 m |
+| Peak near Shackleton D | 1646.5 m | 1645.0 m | +1.5 m |
+| de Gerlache ridge C | 1780.0 m | 1780.0 m | +0.0 m |
+| Malapert Massif | 5164.5 m | 5162.5 m | +2.0 m |
+| Haworth rim | 1782.5 m | 1781.5 m | +1.0 m |
+| Faustini rim | 1124.5 m | 1125.0 m | -0.5 m |
+| Nobile rim | 6458.0 m | 6458.0 m | +0.0 m |
+| Shackleton crater wall | -339.0 m | -326.0 m | -13.0 m |
+| Apollo 11 | -1933.5 m | -1927.5 m | -6.0 m |
+| Apollo 12 | -1432.0 m | -1431.5 m | -0.5 m |
+| Apollo 14 | -1060.0 m | -1061.0 m | +1.0 m |
+| Apollo 15 | -1925.0 m | -1926.0 m | +1.0 m |
+| Apollo 16 | 10.5 m | 12.5 m | -2.0 m |
+| Apollo 17 | -2626.5 m | -2627.5 m | +1.0 m |
+| Chang’e-4 | -5925.5 m | -5924.0 m | -1.5 m |
+| Chandrayaan-3 | 531.0 m | 529.5 m | +1.5 m |
+| Chang’e-6 | -5253.5 m | -5254.0 m | +0.5 m |
+| IM-1 Odysseus | 2589.0 m | 2596.0 m | -7.0 m |
+| IM-2 Athena | 5322.0 m | 5324.5 m | -2.5 m |
+
+Over the 19 sites the mean absolute difference is 2.3 m (median 1.0 m, maximum 13.0 m). The largest gap is at the steep Shackleton crater wall, where a few metres of horizontal difference between the two pixel grids is a large height difference. Moon Trek's map *tiles*, by contrast, are 8-bit images and carry no metric heights, so only its ImageServer is used as a data source. QuickMap cannot be embedded and exposes no documented data or deep-link API, so it stays a plain link.
 
 ### Full-cycle statistics, checked against NASA's own maps
 
@@ -98,12 +126,14 @@ To check it independently, `npm run validate:nasa` compares it with NASA's own *
 | Faustini rim | 46–54% (centre 52%) | 49–54% | 50% (centre 50%) | 41–50% |
 | Nobile rim | 49–64% (centre 64%) | 59–64% | 59–100% (centre 85%) | 80–100% |
 | Shackleton crater wall | 0% (centre 0%) | 0% | 0% (centre 0%) | 0% |
-| IM-1 Odysseus | 34–40% (centre 36%) | 34–36% | 100% (centre 100%) | 100% |
+| IM-1 Odysseus | 34–40% (centre 36%) | 33–34% | 100% (centre 100%) | 100% |
 | IM-2 Athena | 43–47% (centre 47%) | 44–47% | 79–93% (centre 93%) | 74–93% |
 
 What this shows, stated carefully:
-- **Earth agrees closely**: mean difference 3.3 points at NASA's centre pixel across the 10 sites, and our range overlaps NASA's nearby-pixel range at every site.
-- **Sun agrees at 7 of 10 sites at the centre pixel.** At three sharp-crest sites (Peak near Shackleton D, de Gerlache ridge C, Haworth rim) NASA's centre pixel is 15 to 16 points lower than ours, but NASA's own map swings by up to 70 points within 60 m there (Peak near Shackleton D runs 17–86%), so the comparison is dominated by location precision. The candidate sites were also chosen as the best crest by this app's own calculation, which biases them upward. Across all 10 sites our range overlaps NASA's nearby-pixel range; the mean centre-pixel difference is 9.3 points.
+- **Earth agrees closely**: a mean difference of 3.3 points at NASA's centre pixel across the 10 sites, and our range overlaps NASA's nearby-pixel range at 10 of 10.
+- **Sun**: at NASA's centre pixel it falls inside our whole-disc-to-any-part range at 6 of 10 sites, and the mean difference is 9.4 points. Our range overlaps NASA's nearby-pixel range at 9 of 10 sites; the exception is IM-1 Odysseus (our upper value is 0.3 points below NASA's lowest nearby pixel).
+- **Three sharp-crest sites differ most** (Peak near Shackleton D, de Gerlache ridge C, Haworth rim): NASA's centre pixel is 15 to 16 points lower than ours, but NASA's own map swings by up to 69 points within one pixel there (Peak near Shackleton D runs 17–86%), so the comparison is dominated by location precision. The candidate sites were also chosen as the best crest by this app's own calculation, which biases them upward. Smaller centre-pixel gaps: IM-1 Odysseus (NASA centre 35.6% against our 33–34%).
+- **The 118 m terrain upgrade neither helps nor hurts this check.** IM-1 is the only validated site that uses the global map, and its Sun moved from 34–36% to 33–34% when the near-field terrain went from 237 m to 118 m; the mean Sun difference barely changed (9.3 to 9.4 points) and Earth stayed at 3.3.
 - **The map is being read in the right place**: a negative control with the wrong map orientations gives a mean Sun error of 44 to 50 points, against 11.6 for the correct one.
 - NASA's maps are computed for ground level and ours for a 2 m mast; ours also uses a finer terrain grid than the 60 m map.
 
@@ -111,13 +141,19 @@ An early version clamped the horizon with the 2 m mast height instead of the sit
 
 ## Limits (please read)
 
-- **Not a landing-safety tool.** No rock, slope-of-landing-footprint or hazard assessment. The slope map is a screening aid on a partly interpolated grid.
-- **Away from the pole the terrain is coarser.** The global LOLA map is 237 m per pixel, much larger than a lander footprint, so skylines and slopes there are less detailed than at the pole, and the "gentle ground" score is optimistic on a coarse grid.
+- **Not a landing-safety tool.** Slope is a screening aid measured over about 100 m against NASA's Artemis HLS briefing criterion (landing slope under 10° over 100 m, NTRS 20240009596) on a partly interpolated grid. Rocks, boulders and small craters are not assessed: no public rock data exists near the pole (Diviner rock abundance stops near 60° latitude).
+- **Away from the pole the terrain is coarser.** The near-field global LOLA map is 118 m per pixel (474 m and 1.9 km further out), still much larger than a lander footprint, so skylines and slopes there are less detailed than at the 20 m pole map, and the "gentle ground" score is optimistic on a coarse grid.
 - **LOLA 20 m is partly interpolated** (only part of the pixels contain a measured spot), so close-in horizons at low antenna heights are the least certain part.
 - **The live verdict uses 15–60 day windows**, which cannot reproduce multi-year published percentages by themselves. The full 18.6-year result is precomputed only for the 8 candidate and 11 landing sites; a custom site does not get one (use the best start-date finder instead).
 - **Relay mode is a simple assumption** (Earth contact always available), not a relay orbit model.
 - **Optional AI brief is untested against a live key.** It sends only the verdict numbers, rejects any reply containing a number that is not in the verdict, and falls back to the rule-based text. It needs `ANTHROPIC_API_KEY` on the server and is off on the hosted site.
 - Landing-site coordinates come from the NASA NSSDC Apollo table and public mission reports; verify before any real use.
+
+## Testing and usability
+
+- **Calculation:** checked against NASA's own illumination maps, published studies, an independent SPICE run and NASA Moon Trek (see Validation).
+- **Optional AI brief:** `npm run test:ai` runs 18 tests with no network and no API key: the number guard (faithful text, invented numbers, rounding, trailing zeros, thousands separators, site names containing digits) and every response shape the client must survive (good reply, 429, no key, malformed, empty, network failure) against a mock server. A live Claude call has not been run.
+- **Usability:** no real-user test has been run yet. [`docs/USABILITY.md`](docs/USABILITY.md) is a ready one-hour protocol with six tasks, the SUS questionnaire and a heuristic self-review.
 
 ## Run it locally
 
@@ -153,6 +189,9 @@ ANTHROPIC_API_KEY=your-key npm run dev
 | `npm run bake:map` | Re-bakes the whole-pole map |
 | `npm run longterm` | Recomputes the 18.6-year statistics for all 19 sites (about 15 minutes, needs network) |
 | `npm run validate:nasa` | Compares them with NASA's own Sun and Earth illumination maps |
+| `npm run check:trek` | Compares our terrain height at each site with NASA Moon Trek's LOLA service |
+| `npm run bake:illum` | Re-bakes NASA's 18.6-year illumination map for the pole-map overlay |
+| `npm run test:ai` | 18 offline tests of the optional AI brief against a mock server (no key needed) |
 | `npm run refine:presets` / `npm run find:rims` | The scans used to choose the candidate sites |
 | `scripts/spice_check.py` | Independent NAIF SPICE cross-check (set-up steps are in its header) |
 
@@ -179,7 +218,7 @@ Built with React, TypeScript, Vite, three.js, geotiff.js and hand-written SVG ch
 
 ## Acknowledgements and references
 
-- NASA LRO / LOLA team; NASA Goddard PGDA, *A New View of the Lunar South Pole from LOLA* (Barker et al., PSJ 4, 183, 2023; DOI 10.60903/gsfcpgda-lola-spole). PGDA states no explicit licence; check before any commercial use.
+- NASA LRO / LOLA team; NASA Goddard PGDA, *A New View of the Lunar South Pole from LOLA* (Barker et al., 2023, Planet. Sci. J. 4, 183, [doi:10.3847/PSJ/acf3e1](https://doi.org/10.3847/PSJ/acf3e1); data DOI 10.60903/gsfcpgda-lola-spole; this is the citation the PGDA product page asks for). PGDA states no explicit licence; check before any commercial use.
 - NASA JPL Horizons System and NAIF SPICE.
 - NASA LOLA *Lunar Polar Illumination* maps (E. Mazarico; PGDA product 69, PDS `AVGVISIB_*`), used as the independent check above.
 - Mazarico et al. (2011), Gläser et al. (2014) and NASA SVS 4893 / 4944 for illumination studies and the method.

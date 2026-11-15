@@ -4,7 +4,7 @@ export const config = { runtime: 'edge' };
 
 const UP: Record<string, { base: string; ok: RegExp }> = {
   pgda: { base: 'https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/', ok: /^LDEM_80S_20MPP_ADJ\.TIF$/ },
-  imbrium: { base: 'https://imbrium.mit.edu/DATA/LOLA_GDR/CYLINDRICAL/IMG/', ok: /^LDEM_(128|64|16|4)\.IMG$/ },
+  imbrium: { base: 'https://imbrium.mit.edu/DATA/LOLA_GDR/CYLINDRICAL/IMG/', ok: /^(LDEM_(128|64|16|4)\.IMG|LDEM_256_(00N_90N|90S_00S)_(000_180|180_360)\.IMG)$/ },
 };
 
 export default async function handler(req: Request): Promise<Response> {

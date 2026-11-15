@@ -24,6 +24,9 @@ export function PoleMap({ site, onPick }: { site: Site; onPick: (s: Site) => voi
   const cv = useRef<HTMLCanvasElement>(null);
   const [m, setM] = useState<MapData | null>(null);
   const [err, setErr] = useState(false);
+  const ill = useRef<HTMLCanvasElement>(null);
+  const [showIllum, setShowIllum] = useState(() => new URLSearchParams(location.search).get('illum') === '1');
+  const [illMsg, setIllMsg] = useState('');
   useEffect(() => { loadMap().then(setM).catch(() => setErr(true)); }, []);
 
   useEffect(() => {
@@ -44,6 +47,26 @@ export function PoleMap({ site, onPick }: { site: Site; onPick: (s: Site) => voi
     ctx.putImageData(img, 0, 0);
   }, [m]);
 
+  // NASA's own 18.6-year average Sun-visibility map (LOLA Lunar Polar Illumination, PGDA product 69), baked onto the same grid
+  useEffect(() => {
+    if (!showIllum || !m || !ill.current) return;
+    let live = true; setIllMsg('Loading NASA illumination map…');
+    fetch('/lola/pole_illum.bin').then((r) => { if (!r.ok) throw new Error('missing'); return r.arrayBuffer(); }).then((buf) => {
+      if (!live || !ill.current) return;
+      const hl = new DataView(buf).getUint32(0, true), head = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 4, hl))), px = new Uint8Array(buf, 4 + hl);
+      const c = ill.current, ctx = c.getContext('2d')!; c.width = head.w; c.height = head.h;
+      const img = ctx.createImageData(head.w, head.h);
+      for (let k = 0; k < px.length; k++) {
+        const v = px[k], o = k * 4;
+        if (v === 255) { img.data[o + 3] = 0; continue; }
+        if (v === 0) { img.data[o] = 30; img.data[o + 1] = 70; img.data[o + 2] = 200; img.data[o + 3] = 120; continue; } // permanent shadow: blue
+        img.data[o] = 255; img.data[o + 1] = 190; img.data[o + 2] = 60; img.data[o + 3] = 40 + Math.round(v * 1.6);  // sunlit: amber, more opaque = more sunlight
+      }
+      ctx.putImageData(img, 0, 0); setIllMsg('');
+    }).catch(() => live && setIllMsg('Illumination map not found (run npm run bake:illum).'));
+    return () => { live = false; };
+  }, [showIllum, m]);
+
   if (err) return <small className="muted">Pole map data not found (run npm run bake:map).</small>;
   const pts = m ? [...PRESETS.map((s) => ({ s, kind: 'preset' as const })), ...MISSIONS.filter((x) => x.lat <= -80).map((s) => ({ s, kind: 'mission' as const }))] : [];
   const cur = m ? toPx(m, site.lat, site.lon) : [0, 0];
@@ -52,6 +75,7 @@ export function PoleMap({ site, onPick }: { site: Site; onPick: (s: Site) => voi
     <div className="polemap">
       <div className="mapwrap">
         <canvas ref={cv} aria-label="Hillshade of the lunar south pole from LOLA" />
+        <canvas ref={ill} aria-label="NASA 18.6-year average illumination" style={{ display: showIllum ? 'block' : 'none', pointerEvents: 'none' }} />
         {m && (
           <svg viewBox={`0 0 ${m.w} ${m.h}`} className="mapsvg">
             {[82, 84, 86, 88].map((l) => <g key={l}><circle cx={cx} cy={cy} r={ringR(m, -l)} fill="none" stroke="rgba(140,175,255,.75)" strokeWidth={3} strokeDasharray="12 10" /><text x={cx + ringR(m, -l) * 0.7071 + 4} y={cy - ringR(m, -l) * 0.7071} fontSize="22" fill="#9bb6ff">{l}°S</text></g>)}
@@ -63,6 +87,8 @@ export function PoleMap({ site, onPick }: { site: Site; onPick: (s: Site) => voi
           </svg>
         )}
       </div>
+      <label className="inl" style={{ marginTop: 8 }}><input type="checkbox" checked={showIllum} onChange={(e) => setShowIllum(e.target.checked)} /> Show NASA’s 18.6-year Sun map (blue = sunlit under 0.5% of the time, amber = sunlit, more opaque = more sunlight)</label>
+      {illMsg && <small className="muted">{illMsg}</small>}
       <small className="muted">Real NASA LOLA elevation, 640 m per pixel, hillshaded with a low Sun. Rings are latitudes. <span style={{ color: '#f4b73f' }}>●</span> our candidate sites, <span style={{ color: '#58a6ff' }}>●</span> past or planned landings. Click one to select it.</small>
     </div>
   );

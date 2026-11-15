@@ -18,7 +18,8 @@ export function numbersOk(text: string, f: Facts): { ok: boolean; bad: string[] 
   const allowed = new Set<number>();
   for (const v of Object.values(f)) if (typeof v === 'number') { allowed.add(v); allowed.add(Math.round(v)); allowed.add(Math.round(v * 10) / 10); }
   for (const d of [f.longest_sun_outage_days, f.longest_earth_outage_days, f.longest_both_outage_days]) if (d > 0 && d < 1) allowed.add(Math.round(d * 24));
-  const stripped = text.replace(/\bClaude\b|\bCLPS\b/g, '');
+  // site names can contain digits (Apollo 11, IM-2, Chandrayaan-3): they are labels, not figures
+  const stripped = text.split(f.site).join(' ').replace(/\bClaude\b|\bCLPS\b/g, '');
   const bad: string[] = [];
   for (const m of stripped.matchAll(/-?\d+(?:\.\d+)?/g)) { const n = parseFloat(m[0]); if (!allowed.has(n) && !allowed.has(Math.abs(n))) bad.push(m[0]); }
   return { ok: bad.length === 0, bad };

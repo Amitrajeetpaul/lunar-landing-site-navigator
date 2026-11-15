@@ -1,0 +1,119 @@
+{
+ "source": "NASA Moon Trek LRO_LOLA_DEM_Global_256ppd_v06 ImageServer identify",
+ "rows": [
+  {
+   "name": "Shackleton ridge",
+   "ours": 1729.5,
+   "trek": 1730.5,
+   "diff": -1
+  },
+  {
+   "name": "Peak near Shackleton D",
+   "ours": 1646.5,
+   "trek": 1645,
+   "diff": 1.5
+  },
+  {
+   "name": "de Gerlache ridge C",
+   "ours": 1780,
+   "trek": 1780,
+   "diff": 0
+  },
+  {
+   "name": "Malapert Massif",
+   "ours": 5164.5,
+   "trek": 5162.5,
+   "diff": 2
+  },
+  {
+   "name": "Haworth rim",
+   "ours": 1782.5,
+   "trek": 1781.5,
+   "diff": 1
+  },
+  {
+   "name": "Faustini rim",
+   "ours": 1124.5,
+   "trek": 1125,
+   "diff": -0.5
+  },
+  {
+   "name": "Nobile rim",
+   "ours": 6458,
+   "trek": 6458,
+   "diff": 0
+  },
+  {
+   "name": "Shackleton crater wall",
+   "ours": -339,
+   "trek": -326,
+   "diff": -13
+  },
+  {
+   "name": "Apollo 11",
+   "ours": -1933.5,
+   "trek": -1927.5,
+   "diff": -6
+  },
+  {
+   "name": "Apollo 12",
+   "ours": -1432,
+   "trek": -1431.5,
+   "diff": -0.5
+  },
+  {
+   "name": "Apollo 14",
+   "ours": -1060,
+   "trek": -1061,
+   "diff": 1
+  },
+  {
+   "name": "Apollo 15",
+   "ours": -1925,
+   "trek": -1926,
+   "diff": 1
+  },
+  {
+   "name": "Apollo 16",
+   "ours": 10.5,
+   "trek": 12.5,
+   "diff": -2
+  },
+  {
+   "name": "Apollo 17",
+   "ours": -2626.5,
+   "trek": -2627.5,
+   "diff": 1
+  },
+  {
+   "name": "Chang’e-4",
+   "ours": -5925.5,
+   "trek": -5924,
+   "diff": -1.5
+  },
+  {
+   "name": "Chandrayaan-3",
+   "ours": 531,
+   "trek": 529.5,
+   "diff": 1.5
+  },
+  {
+   "name": "Chang’e-6",
+   "ours": -5253.5,
+   "trek": -5254,
+   "diff": 0.5
+  },
+  {
+   "name": "IM-1 Odysseus",
+   "ours": 2589,
+   "trek": 2596,
+   "diff": -7
+  },
+  {
+   "name": "IM-2 Athena",
+   "ours": 5322,
+   "trek": 5324.5,
+   "diff": -2.5
+  }
+ ]
+}

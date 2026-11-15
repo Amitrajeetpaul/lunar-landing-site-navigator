@@ -1,5 +1,5 @@
 // npm run bake:global   Bakes the real LOLA global-map terrain for the non-polar mission sites into public/lola/<lat>_<lon>.bin.
-// Slow (NASA/MIT server, roughly 40 s per site). Sites at 81-90 S use the 20 m polar product (npm run bake:lola) instead.
+// Slow (NASA/MIT server, roughly 60 s per site). Sites at 81-90 S use the 20 m polar product (npm run bake:lola) instead.
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { buildLolaTerrain, encodeTerrain, lolaGlobalOnly, lolaSlug } from '../src/lib/lola';
 import { setGlobalBase } from '../src/lib/lolaGlobal';
