@@ -4,6 +4,7 @@ import { Learn } from './components/Learn';
 import { PoleMap } from './components/PoleMap';
 import { PowerCard } from './components/PowerCard';
 import { LongTermCard } from './components/LongTermCard';
+import { DarkCard } from './components/DarkCard';
 import { SlopeCard } from './components/SlopeCard';
 import { TrekCheck } from './components/TrekCheck';
 import { ScoreCard } from './components/ScoreCard';
@@ -308,6 +309,7 @@ export function App() {
 
             <section className={'blk' + (['verdict'].includes(pane) ? '' : ' off')} data-pane="verdict" style={{ '--o': 3 } as CSSProperties}>
               <PowerCard now={now.s} samples={samples} sunFlag={flags.sun} sunVisible={now.sunVis} days={days} />
+              <DarkCard samples={samples} flags={flags} days={days} relay={relay} />
               <LongTermCard site={site} terrain={terrain} />
             </section>
 

@@ -3,6 +3,7 @@ import { analyze, fmtDur, fromInput, toInput, type Analysis } from '../lib/analy
 import { PRESETS, type Site } from '../lib/sites';
 import type { Rule } from '../lib/visibility';
 import { WindowFinder } from './WindowFinder';
+import { moonDistanceKm } from '../lib/dark';
 import { missionScore, type Weights } from '../lib/score';
 
 interface Scn { id: number; site: Site; start: number }
@@ -56,13 +57,24 @@ export function Compare({ start, days, mast, useHorizons, rule, current, relay, 
           <button onClick={() => setScns([...scns, { id: nextId++, site: current, start }])}>Add current site</button>
         </div>
         {busy && <p className="muted">Fetching ephemeris and LOLA terrain…</p>}
+        {!busy && done.length > 0 && (() => {
+          const safe = done.filter((q) => res[q.id].verdict.sunOutageD === 0);
+          return (
+            <p className="muted">
+              {safe.length
+                ? <>Cards with no Sun outage over these {days} days: {safe.map((q) => `${q.site.name} (${moonDistanceKm(current, q.site) < 1 ? 'the selected site' : `${Math.round(moonDistanceKm(current, q.site))} km from the selected site`})`).join('; ')}.</>
+                : <>None of these cards keeps the Sun for the whole {days}-day window. Try another start date, or press “All presets, same date” to look for a lit alternative.</>}
+            </p>
+          );
+        })()}
+
       </div>
       <div className="cards">
         {scns.map((s) => {
           const a = res[s.id];
           return (
             <div key={s.id} className={`panel card ${best === s.id ? 'best' : ''}`}>
-              <div className="row"><b>{s.site.name}</b>{best === s.id && <span className="badge ok">BEST</span>}{a && <span className="badge" title="Mission score">{sc(s.id).toFixed(0)}/100</span>}<span className="spacer" />
+              <div className="row"><b>{s.site.name}</b>{best === s.id && <span className="badge ok">BEST</span>}{a && a.verdict.sunOutageD === 0 && <span className="badge ok" title="The Sun stays above the terrain for the whole window">NO SUN OUTAGE</span>}{a && <span className="badge" title="Mission score">{sc(s.id).toFixed(0)}/100</span>}<span className="spacer" />
                 <button className="x" onClick={() => setScns(scns.filter((q) => q.id !== s.id))} aria-label="Remove">×</button></div>
               <div className="muted mono">lat {s.site.lat} · lon {s.site.lon}</div>
               <input type="datetime-local" aria-label={`Start date for ${s.site.name}`} value={toInput(s.start)} onChange={(e) => { const v = fromInput(e.target.value); if (!Number.isNaN(v)) setScns(scns.map((q) => q.id === s.id ? { ...q, start: v } : q)); }} />

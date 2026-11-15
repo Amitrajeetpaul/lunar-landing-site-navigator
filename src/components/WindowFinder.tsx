@@ -7,11 +7,14 @@ const SCAN = 120;
 const fmtD = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 /** Which start date is best for this site? One Horizons request, every daily start scored. */
-export function WindowFinder({ site, from, days, mast, useHorizons, rule, relay, onUse }: { site: Site; from: number; days: number; mast: number; useHorizons: boolean; rule: Rule; relay: boolean; onUse: (start: number) => void }) {
+export function WindowFinder({ site, from, days: windowDays, mast, useHorizons, rule, relay, onUse }: { site: Site; from: number; days: number; mast: number; useHorizons: boolean; rule: Rule; relay: boolean; onUse: (start: number) => void }) {
+  const [visit, setVisit] = useState(windowDays);
+  const days = visit;
   const [res, setRes] = useState<{ scores: WindowScore[]; source: string; terrain: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
+  useEffect(() => { setVisit(windowDays); }, [windowDays]);
   useEffect(() => { setRes(null); }, [site, from, days, mast, useHorizons, rule, relay]);
 
   const run = () => {
@@ -32,6 +35,7 @@ export function WindowFinder({ site, from, days, mast, useHorizons, rule, relay,
     <div className="panel">
       <h3>Best start-date finder · {site.name}</h3>
       <p className="muted">Scores every start date over the next {SCAN} days (from the window start), each for a {days}-day mission window, from a single ephemeris request. Ranked by time with Sun and Earth together, then by shortest joint outage.</p>
+      <label className="inl">Visit length <input type="number" min={1} max={60} value={visit} onChange={(e) => setVisit(Math.min(60, Math.max(1, Math.round(+e.target.value) || 1)))} /> days</label>
       <div className="row"><button className="primary" onClick={run} disabled={busy}>{busy ? 'Scanning…' : `Scan ${SCAN} days`}</button></div>
       {err && <p className="muted">Scan failed: {err}</p>}
       {res && sc.length > 0 && (
@@ -55,6 +59,17 @@ export function WindowFinder({ site, from, days, mast, useHorizons, rule, relay,
               </div>
             ))}
           </div>
+          {(() => {
+            const safe = sc.filter((r) => r.verdict.sunOutageD === 0), least = sc.reduce((a, b) => (b.verdict.sunOutageD < a.verdict.sunOutageD ? b : a));
+            return (
+              <div className="pick">
+                <b>Sun-safe starts for a {days}-day visit</b>
+                {safe.length > 0
+                  ? <><span>{safe.length} of {sc.length} start dates keep the Sun above the terrain for the whole visit (no Sun outage). Earliest: {fmtD(safe[0].start)}.</span><button onClick={() => onUse(safe[0].start)}>Use earliest</button></>
+                  : <><span>No start date in this scan keeps the Sun for the whole {days}-day visit. Shortest Sun outage: {fmtDur(least.verdict.sunOutageD)} starting {fmtD(least.start)}.</span><button onClick={() => onUse(least.start)}>Use that date</button></>}
+              </div>
+            );
+          })()}
           {worst && <small className="muted">Worst start: {fmtD(worst.start)} with {worst.verdict.bothPct.toFixed(0)}% both. Spread best to worst: {(ranked[0].verdict.bothPct - worst.verdict.bothPct).toFixed(0)} points, so the date matters. {res.source === 'horizons' ? 'JPL Horizons' : 'Series model (fallback)'} · {res.terrain === 'lola' ? 'LOLA terrain' : 'prototype terrain'}. Click a bar to use that date.</small>}
         </>
       )}

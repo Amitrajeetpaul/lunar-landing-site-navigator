@@ -158,6 +158,7 @@ An early version clamped the horizon with the 2 m mast height instead of the sit
 
 - **Accessibility and performance:** Lighthouse (automated, Chrome) scored 100 for accessibility and best practices on the Verdict and Compare tabs after fixing a missing favicon, a missing main landmark and two unlabeled inputs. This is not a full WCAG audit. No horizontal overflow was found at 390, 360 or 320 px on the six main screens.
 - **Custom sites:** the 18.6-year statistics are precomputed for the 19 preset sites; for a custom site the Verdict tab has a button that fetches the full cycle from JPL Horizons (14 requests, about a minute) and computes it in the browser with the same code (`npm run check:longterm` shows it matches the precomputed numbers exactly).
+- **If the visit falls in the dark:** the Verdict tab has a *Dark periods* card listing every Sun outage and Earth gap with start, end and length, the longest sunlit stretch, whether a planned stay fits in one lit stretch, and the energy (load × hours, plain arithmetic) needed to ride out the longest dark spell. The start-date finder takes a visit length and lists start dates with no Sun outage; Compare marks cards with no Sun outage and lists their distance from the selected site. This is arithmetic on the visibility data, not a power or thermal design (no battery efficiency, ageing, heating or temperature model). `npm run test:dark` runs its offline tests.
 - **Licence:** code is MIT (see `LICENSE`). NASA data keeps its own terms.
 
 ## Run it locally
